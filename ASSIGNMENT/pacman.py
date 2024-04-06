@@ -52,6 +52,7 @@ import types
 import time
 import random
 import os
+import importlib.util
 
 ###################################################
 # YOUR INTERFACE TO THE PACMAN WORLD: A GameState #
@@ -626,6 +627,7 @@ def readCommand(argv):
 def loadAgent(pacman, nographics):
     # Looks through all pythonPath Directories for the right module,
     pythonPathStr = os.path.expandvars("$PYTHONPATH")
+    print(pythonPathStr)
     if pythonPathStr.find(';') == -1:
         pythonPathDirs = pythonPathStr.split(':')
     else:
@@ -635,12 +637,18 @@ def loadAgent(pacman, nographics):
     for moduleDir in pythonPathDirs:
         if not os.path.isdir(moduleDir):
             continue
-        moduleNames = [f for f in os.listdir(
-            moduleDir) if f.endswith('gents.py')]
+        moduleNames = [os.path.join(root, f) for root, dirs, files in os.walk(moduleDir) 
+                       for f in files if f.endswith('gents.py')]
+
         for modulename in moduleNames:
+            modulename = modulename.replace('.\\', '')
             try:
-                module = __import__(modulename[:-3])
-            except ImportError:
+                mod_name = os.path.splitext(os.path.basename(modulename))[0] 
+                module_spec = importlib.util.spec_from_file_location(mod_name, modulename)
+                module = importlib.util.module_from_spec(module_spec)
+                module_spec.loader.exec_module(module)
+            except ImportError as e:
+                print(f"import error, {e}")
                 continue
             if pacman in dir(module):
                 if nographics and modulename == 'keyboardAgents.py':

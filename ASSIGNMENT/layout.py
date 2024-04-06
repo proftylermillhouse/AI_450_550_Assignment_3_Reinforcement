@@ -20,7 +20,6 @@ from functools import reduce
 
 VISIBILITY_MATRIX_CACHE = {}
 
-
 class Layout:
     """
     A Layout manages the static information about the game board.
@@ -139,11 +138,12 @@ class Layout:
 
 def getLayout(name, back=2):
     if name.endswith('.lay'):
-        layout = tryToLoad('layouts/' + name)
+        layout = tryToLoad('ASSIGNMENT/layouts/' + name)
         if layout == None:
             layout = tryToLoad(name)
     else:
-        layout = tryToLoad('layouts/' + name + '.lay')
+        layout = tryToLoad('ASSIGNMENT/layouts/' + name + '.lay')
+        print(layout)
         if layout == None:
             layout = tryToLoad(name + '.lay')
     if layout == None and back >= 0:
@@ -152,7 +152,6 @@ def getLayout(name, back=2):
         layout = getLayout(name, back - 1)
         os.chdir(curdir)
     return layout
-
 
 def tryToLoad(fullname):
     if(not os.path.exists(fullname)):
